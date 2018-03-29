@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import java.lang.Object;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
@@ -38,6 +37,9 @@ public class XposedMod implements IXposedHookLoadPackage {
                 if (isMusicPlaying()) {
                     playingPerformAction(gesture, context);
                 }
+                else {
+                    notPlayingPerformAction(gesture, context);
+                }
                 param.setResult(null);
                 return null;
             }
@@ -57,44 +59,34 @@ public class XposedMod implements IXposedHookLoadPackage {
         return am.isMusicActive();
     }
 
-    private String setLaunchApp(){
-        XSharedPreferences xpre = new XSharedPreferences("me.arnoldwho.htcagesture", "data");
-        String packagename = xpre.getString("packagename","com.spotify.music");
-        return packagename;
-    }
 
     private  void playingPerformAction(int action, Context context) {
         switch(action){
-            case GestureType.SWIPE_LEFT:
+            case GestureType.SWIPE_LEFT:           //last song
                     sendMediaButton(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
                     XposedHelpers.callMethod(temp.thisObject, "doOnResetAction");
-                    XposedBridge.log("LEFT");
                 break;
-            case GestureType.SWIPE_RIGHT:
+            case GestureType.SWIPE_RIGHT:         //next song
                     sendMediaButton(context, KeyEvent.KEYCODE_MEDIA_NEXT);
                     XposedHelpers.callMethod(temp.thisObject, "doOnResetAction");
-                    XposedBridge.log("RIGHT");
                 break;
-            case GestureType.CAMERA_ACTION:
+            case GestureType.CAMERA_ACTION:       //pause
                     sendMediaButton(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
                     XposedHelpers.callMethod(temp.thisObject, "doOnResetAction");
-                    XposedBridge.log("Down");
                 break;
-            case GestureType.SWIPE_UP:
-                //Context ctx=context;
+            case GestureType.SWIPE_UP:          //open apps
                 try {
 
-                    Intent i = context.getPackageManager().getLaunchIntentForPackage(setLaunchApp());
-                    XposedBridge.log(setLaunchApp());
+                    Intent i = context.getPackageManager().getLaunchIntentForPackage("com.spotify.music");
                     context.startActivity(i);
-                    XposedBridge.log("UP");
                 } catch (Exception e) {
                     XposedBridge.log(e);
                 }
                 wakeUpDevice();
                 break;
-            case GestureType.DOUBLE_TAP_ACTION:
+            case GestureType.DOUBLE_TAP_ACTION:       //wake up
                 wakeUpDevice();
+                XposedBridge.log("wake up");
                 break;
             default: break;
         }
@@ -102,21 +94,9 @@ public class XposedMod implements IXposedHookLoadPackage {
 
     private void notPlayingPerformAction(int action, Context context) {
         switch(action){
-            case GestureType.SWIPE_UP:
-                //Context ctx=context;
-                try {
-
-                    Intent i = context.getPackageManager().getLaunchIntentForPackage(setLaunchApp());
-                    XposedBridge.log(setLaunchApp());
-                    context.startActivity(i);
-                    XposedBridge.log("UP");
-                } catch (Exception e) {
-                    XposedBridge.log(e);
-                }
+            case GestureType.DOUBLE_TAP_ACTION:       //wake up
                 wakeUpDevice();
-                break;
-            case GestureType.DOUBLE_TAP_ACTION:
-                wakeUpDevice();
+                XposedBridge.log("wake up");
                 break;
             default: break;
         }
@@ -128,7 +108,6 @@ public class XposedMod implements IXposedHookLoadPackage {
                 | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
         wakeLock.acquire();
         wakeLock.release();
-        XposedBridge.log("WakeUp");
     }
 
     private void sendMediaButton(Context context, int keyCode) {
