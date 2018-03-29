@@ -14,21 +14,18 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Easy example which makes the status bar clock red and adds a smiley" />
+            android:value="A module to change the HTC Motion launch gestures." />
         <meta-data
             android:name="xposedminversion"
             android:value="53" />
 
-        <activity
-            android:name=".OptionActivity"
-            android:label="@string/title_activity_option"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".AppInfoActivity"></activity>
     </application>
 
 </manifest>
